@@ -12,7 +12,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-      - ./nas-mount:/nas-mount
+      -  W:/ovis_save:/nas-mount
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=sqlite:///data/ovis.db
