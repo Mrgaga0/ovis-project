@@ -84,68 +84,68 @@ export const api = {
   // 에이전트 관련 API
   agents: {
     getAll: async () => {
-      return await apiClient.get('/api/v1/agents');
+      return await apiClient.get('/api/agents');
     },
     
     getById: async (id: string) => {
-      return await apiClient.get(`/api/v1/agents/${id}`);
+      return await apiClient.get(`/api/agents/${id}`);
     },
     
     create: async (data: any) => {
-      return await apiClient.post('/api/v1/agents', data);
+      return await apiClient.post('/api/agents', data);
     },
     
     update: async (id: string, data: any) => {
-      return await apiClient.put(`/api/v1/agents/${id}`, data);
+      return await apiClient.put(`/api/agents/${id}`, data);
     },
     
     delete: async (id: string) => {
-      return await apiClient.delete(`/api/v1/agents/${id}`);
+      return await apiClient.delete(`/api/agents/${id}`);
     },
     
     start: async (id: string) => {
-      return await apiClient.post(`/api/v1/agents/${id}/start`);
+      return await apiClient.post(`/api/agents/${id}/start`);
     },
     
     stop: async (id: string) => {
-      return await apiClient.post(`/api/v1/agents/${id}/stop`);
+      return await apiClient.post(`/api/agents/${id}/stop`);
     },
     
     status: async (id: string) => {
-      return await apiClient.get(`/api/v1/agents/${id}/status`);
+      return await apiClient.get(`/api/agents/${id}/status`);
     },
     
     execute: async (id: string, task: any) => {
-      return await apiClient.post(`/api/v1/agents/${id}/execute`, task);
+      return await apiClient.post(`/api/agents/${id}/execute`, task);
     },
     
     quickSetupAlpha: async () => {
-      return await apiClient.post('/api/v1/agents/alpha/quick-setup');
+      return await apiClient.post('/api/agents/alpha/quick-setup');
     },
     
     getAlphaTemplates: async () => {
-      return await apiClient.get('/api/v1/agents/types/alpha/templates');
+      return await apiClient.get('/api/agents/types/alpha/templates');
     },
   },
   
   // NAS 관련 API
   nas: {
     getStatus: async () => {
-      return await apiClient.get('/api/v1/nas/status');
+      return await apiClient.get('/api/nas/status');
     },
     
     listFiles: async (path?: string) => {
-      return await apiClient.get('/api/v1/nas/files', { params: { path } });
+      return await apiClient.get('/api/nas/files', { params: { path } });
     },
     
     readFile: async (path: string) => {
-      return await apiClient.get('/api/v1/nas/file', { params: { path } });
+      return await apiClient.get('/api/nas/file', { params: { path } });
     },
     
     uploadFile: async (path: string, file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      return await apiClient.post('/api/v1/nas/file', formData, {
+      return await apiClient.post('/api/nas/file', formData, {
         params: { path },
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -154,45 +154,45 @@ export const api = {
     },
     
     deleteFile: async (path: string) => {
-      return await apiClient.delete('/api/v1/nas/file', { params: { path } });
+      return await apiClient.delete('/api/nas/file', { params: { path } });
     },
     
     createDirectory: async (path: string) => {
-      return await apiClient.post('/api/v1/nas/directory', null, { params: { path } });
+      return await apiClient.post('/api/nas/directory', null, { params: { path } });
     },
     
     listModels: async () => {
-      return await apiClient.get('/api/v1/nas/models');
+      return await apiClient.get('/api/nas/models');
     },
   },
   
   // 로그 관련 API
   logs: {
     getLogs: async (params?: any) => {
-      return await apiClient.get('/api/v1/logs', { params });
+      return await apiClient.get('/api/logs', { params });
     },
     
     getLogFiles: async () => {
-      return await apiClient.get('/api/v1/logs/files');
+      return await apiClient.get('/api/logs/files');
     },
     
     readLogFile: async (path: string) => {
-      return await apiClient.get('/api/v1/logs/file', { params: { path } });
+      return await apiClient.get('/api/logs/file', { params: { path } });
     },
     
     deleteLogFile: async (path: string) => {
-      return await apiClient.delete('/api/v1/logs/file', { params: { path } });
+      return await apiClient.delete('/api/logs/file', { params: { path } });
     },
   },
   
   // 시스템 관련 API
   system: {
     getStatus: async () => {
-      return await apiClient.get('/api/v1/status');
+      return await apiClient.get('/api/status');
     },
     
     getSystemInfo: async () => {
-      return await apiClient.get('/api/v1/system/info');
+      return await apiClient.get('/api/system/info');
     },
   },
 }; 

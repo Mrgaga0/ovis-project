@@ -35,10 +35,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 라우터 등록
-app.include_router(agents.router, prefix="/api/v1/agents", tags=["agents"])
-app.include_router(nas.router, prefix="/api/v1/nas", tags=["nas"])
-app.include_router(logs.router, prefix="/api/v1/logs", tags=["logs"])
+# 라우터 등록 - 설정 파일의 prefix 사용
+prefix = settings.api.prefix
+app.include_router(agents.router, prefix=f"{prefix}/agents", tags=["agents"])
+app.include_router(nas.router, prefix=f"{prefix}/nas", tags=["nas"])
+app.include_router(logs.router, prefix=f"{prefix}/logs", tags=["logs"])
 
 # NAS 관리자 초기화
 nas_manager = NASManager(settings.nas.path, settings.nas.directory_structure)
@@ -67,7 +68,30 @@ async def shutdown_event():
     logger.info("OVIS API 서버 종료 중...")
     # 리소스 정리
 
-@app.get("/api/v1/status")
+@app.get("/")
+async def root():
+    """API 루트 경로"""
+    return {
+        "message": "OVIS API 서버에 연결되었습니다.",
+        "version": settings.app.version,
+        "docs_url": "/docs"
+    }
+
+@app.get(f"{prefix}")
+async def api_root():
+    """API 기본 경로"""
+    return {
+        "message": "OVIS API가 실행 중입니다.",
+        "endpoints": [
+            f"{prefix}/agents",
+            f"{prefix}/nas",
+            f"{prefix}/logs",
+            f"{prefix}/status",
+            f"{prefix}/system/info"
+        ]
+    }
+
+@app.get(f"{prefix}/status")
 async def get_status():
     """시스템 상태 정보 반환"""
     return {
@@ -78,7 +102,7 @@ async def get_status():
         "available_agents": settings.agents.available
     }
 
-@app.get("/api/v1/system/info")
+@app.get(f"{prefix}/system/info")
 async def get_system_info():
     """시스템 정보 반환"""
     return {
@@ -97,6 +121,11 @@ async def get_system_info():
             "default": settings.agents.default
         }
     }
+
+@app.get("/health")
+async def health_check():
+    """헬스 체크 엔드포인트"""
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host=settings.api.host, port=settings.api.port, reload=True) 

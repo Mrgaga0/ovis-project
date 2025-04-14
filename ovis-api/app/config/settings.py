@@ -10,7 +10,7 @@ from pydantic_settings import BaseSettings
 class ApiSettings(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
-    prefix: str = "/api/v1"
+    prefix: str = "/api"
     cors_origins: List[str] = ["*"]
 
 class NasDirectoryStructure(BaseModel):
