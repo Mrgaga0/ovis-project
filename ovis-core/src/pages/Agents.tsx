@@ -24,7 +24,18 @@ const Agents = () => {
     try {
       setLoading(true);
       const response = await API.agents.getAll();
-      setAgents(response.data || []);
+      const agentList = response.data?.agents || [];
+      setAgents(agentList);
+      
+      // 에이전트가 없으면 자동으로 알파 에이전트 설정 시도
+      if (agentList.length === 0) {
+        console.log('No agents found, attempting to create Alpha agent...');
+        try {
+          await handleQuickSetupAlpha();
+        } catch (setupError) {
+          console.error('Auto setup failed:', setupError);
+        }
+      }
     } catch (error) {
       console.error('Error loading agents:', error);
       message.error('Failed to load agents');

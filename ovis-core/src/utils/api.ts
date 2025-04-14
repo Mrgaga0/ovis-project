@@ -1,16 +1,37 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+// 환경 타입 정의를 위한 전역 인터페이스 확장
+declare global {
+  interface Window {
+    process?: any;
+    electron?: any;
+  }
+}
 
 // API 기본 URL 설정 (환경에 따라 다름)
 export const getApiBaseUrl = () => {
-  // 개발 환경에서는 localhost:528을 사용
+  // 개발 환경에서는 localhost:3002를 사용
   // 프로덕션 환경(Docker)에서는 상대 경로 사용
-  if (process.env.NODE_ENV === 'production') {
+  
+  // 환경 변수가 설정되어 있으면 그것을 사용
+  if (typeof window !== 'undefined' && window.process && window.process.env && window.process.env.REACT_APP_API_URL) {
+    return window.process.env.REACT_APP_API_URL;
+  }
+  
+  // NODE_ENV가 production인 경우 상대 경로 사용
+  if (typeof window !== 'undefined' && window.process && window.process.env && window.process.env.NODE_ENV === 'production') {
     // Docker 환경에서는 상대 경로를 사용 (Nginx가 프록시)
     return '/api';
   }
   
   // 로컬 스토리지에서 저장된 URL 가져오기 또는 기본값 사용
-  return localStorage.getItem('apiUrl') || 'http://localhost:528';
+  const savedUrl = localStorage.getItem('apiUrl');
+  if (savedUrl) {
+    return savedUrl;
+  }
+  
+  // 기본값: localhost:3002
+  return 'http://localhost:3002';
 };
 
 // API 클라이언트 설정
@@ -24,19 +45,19 @@ export const apiClient = axios.create({
 
 // 요청 인터셉터
 apiClient.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     // API 기본 URL 업데이트 (설정이 변경된 경우)
     config.baseURL = getApiBaseUrl();
     
     // JWT 토큰이 있으면 헤더에 추가
     const token = localStorage.getItem('auth_token');
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
     // 요청 에러 처리
     return Promise.reject(error);
   }
@@ -44,11 +65,11 @@ apiClient.interceptors.request.use(
 
 // 응답 인터셉터
 apiClient.interceptors.response.use(
-  (response) => {
+  (response: AxiosResponse) => {
     // 응답 데이터 처리
     return response;
   },
-  (error) => {
+  (error: AxiosError) => {
     // 응답 에러 처리
     if (error.response) {
       // 서버가 응답을 반환한 경우 (4xx, 5xx)

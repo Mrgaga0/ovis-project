@@ -350,45 +350,27 @@ async def get_alpha_templates():
 @router.post("/alpha/quick-setup", response_model=Agent)
 async def quick_setup_alpha():
     """알파 에이전트 빠른 설정"""
-    # 기본 설정으로 알파 에이전트 생성
     agent_id = str(uuid.uuid4())
     
-    # 기본 설정
-    config = {
-        "name": "알파 에이전트 설정",
-        "description": "기본 설정",
-        "version": "1.0.0",
-        "model_path": "default",
-        "parameters": {
-            "gemini_api_key": "YOUR_API_KEY_HERE",  # 실제 구현에서는 환경 변수 등에서 가져와야 함
-            "rss_sources": [
-                "http://rss.donga.com/total.xml",
-                "https://rss.hankyung.com/feed/headline.xml",
-                "https://www.hani.co.kr/rss/",
-                "https://rss.joins.com/joins_news_list.xml"
-            ],
-            "api_keys": {},
-            "enable_js_rendering": False,
-            "enable_anti_bot": True,
-            "political_analyzer_enabled": True,
-            "mz_analyzer_enabled": True,
-            "enable_fact_checking": True,
-            "formats": ["standard", "mz", "youtube"]
-        },
-        "memory_requirement": "2GB",
-        "cuda_required": False
-    }
-    
-    # 새 에이전트 생성
+    # 기본 에이전트 구성
     new_agent = Agent(
         id=agent_id,
-        name="알파 에이전트",
+        name="오비스 알파",
         type="alpha",
-        description="국제/국내 정치 및 이슈 관련 언론 콘텐츠 제작 지원 에이전트",
+        description="뉴스 수집 및 콘텐츠 생성을 위한 기본 알파 에이전트",
         status=AgentStatus.INACTIVE,
-        config=config,
         created_at=datetime.now(),
         updated_at=datetime.now(),
+        config={
+            "model_path": "alpha/default.model",
+            "ai_service": "gemini",
+            "collection_interval": 60,
+            "topic_threshold": 0.7,
+            "sources": ["web", "rss", "api"],
+            "target_formats": ["article", "summary", "social"],
+            "max_tokens": 2048,
+            "temperature": 0.7
+        }
     )
     
     # 저장
@@ -398,19 +380,14 @@ async def quick_setup_alpha():
 # 추가: Alpha Agent 전용 엔드포인트
 @router.get("/alpha", summary="알파 에이전트 정보", description="알파 에이전트에 대한 기본 정보 반환")
 async def get_alpha_agent_info():
-    """알파 에이전트 정보 조회"""
+    """Alpha 에이전트 정보 반환 - 테스트용"""
     return {
         "id": "alpha-default",
-        "name": "Alpha Agent",
-        "version": "0.19",
+        "name": "오비스 알파",
+        "type": "alpha",
         "status": "active",
         "description": "기본 알파 에이전트",
-        "capabilities": [
-            "news_collection",
-            "topic_analysis",
-            "content_generation",
-            "youtube_script_creation"
-        ]
+        "version": "0.19"
     }
 
 @router.get("/alpha/status", summary="알파 에이전트 상태", description="알파 에이전트의 현재 상태 정보 반환")
