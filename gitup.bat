@@ -1,10 +1,10 @@
 @echo off
-:: GitHub 간단 백업 배치 파일 (v12)
+:: GitHub main 브랜치 백업 배치 파일 (최종)
 :: 한글 인코딩 설정
 chcp 65001 > nul
 
 echo ===================================
-echo    GitHub 간단 백업 도구 (v12)
+echo    GitHub main 브랜치 백업 도구
 echo ===================================
 echo.
 
@@ -41,33 +41,37 @@ set /p COMMIT_MSG="> "
 
 :: Git 명령어 실행
 echo.
-echo [1/4] 변경사항 스테이징...
+echo [1/5] 변경사항 스테이징...
 git add .
 
-echo [2/4] 변경사항 커밋...
+echo [2/5] 변경사항 커밋...
 git commit -m "%COMMIT_MSG% [ovis-%NEW_VERSION%]"
 
-echo [3/4] 버전 태그 생성...
+echo [3/5] 버전 태그 생성...
 git tag -a ovis-%NEW_VERSION% -m "Version ovis-%NEW_VERSION%"
 
-echo [4/4] GitHub에 푸시...
-:: master에서 main으로 변경하고 푸시
-echo 클로드 연동을 위해 main 브랜치로 변경합니다...
-
-:: 현재 브랜치 확인
+echo [4/5] main 브랜치에 병합하기...
+:: 현재 브랜치 저장
 for /f "tokens=*" %%a in ('git branch --show-current') do set CURRENT_BRANCH=%%a
 echo 현재 브랜치: %CURRENT_BRANCH%
 
-:: main 브랜치 생성 및 전환 (없는 경우)
-git checkout -b main 2>nul
+:: main 브랜치가 있는지 확인
+git show-ref --verify --quiet refs/heads/main
 if %ERRORLEVEL% neq 0 (
-    :: 이미 존재하면 전환만
-    git checkout main
+    echo main 브랜치가 없습니다. 생성합니다...
+    git branch main
 )
 
-:: main 브랜치로 푸시
-git push -u origin main
+:: main 브랜치로 전환하여 현재 브랜치 내용 가져오기
+git checkout main
+git merge %CURRENT_BRANCH% --no-edit
+
+echo [5/5] GitHub에 푸시...
+git push -f origin main
 git push origin ovis-%NEW_VERSION%
+
+:: 원래 브랜치로 돌아가기
+git checkout %CURRENT_BRANCH%
 
 echo.
 echo 작업이 완료되었습니다!
