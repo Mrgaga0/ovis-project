@@ -38,7 +38,13 @@ if not exist .git (
     if %ERRORLEVEL% neq 0 goto :error
     
     :: 원격 저장소 연결
-    git remote add origin https://github.com/Mrgaga0/ovis-project.git
+    echo [알림] GitHub 저장소와 연결합니다...
+    
+    :: HTTPS 주소에 인증 정보 포함 (사용자명, 토큰)
+    set /p GIT_USERNAME="GitHub 사용자명을 입력하세요: "
+    set /p GIT_TOKEN="GitHub 개인 액세스 토큰을 입력하세요: "
+    
+    git remote add origin https://%GIT_USERNAME%:%GIT_TOKEN%@github.com/Mrgaga0/ovis-project.git
     if %ERRORLEVEL% neq 0 goto :error
     
     echo [성공] Git 저장소가 초기화되었습니다.
@@ -96,14 +102,23 @@ if "%CURRENT_BRANCH%"=="" (
     set CURRENT_BRANCH=main
 )
 
-echo [진행] GitHub에 푸시 중 (%CURRENT_BRANCH% 브랜치)...
-git push -u origin %CURRENT_BRANCH%
-if %ERRORLEVEL% neq 0 goto :error
+:: 브랜치 확인 및 GitHub에 푸시
+echo [진행] GitHub에 푸시 중 (main 브랜치)...
+echo git push -u origin main
+git push -u origin main 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [오류] 푸시 과정에서 문제가 발생했습니다. 오류 코드: %ERRORLEVEL%
+    goto :error
+)
 
 :: 태그 푸시
 echo [진행] 버전 태그 푸시 중...
-git push origin ovis-!NEW_VERSION!
-if %ERRORLEVEL% neq 0 goto :error
+echo git push origin ovis-!NEW_VERSION!
+git push origin ovis-!NEW_VERSION! 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [오류] 태그 푸시 과정에서 문제가 발생했습니다. 오류 코드: %ERRORLEVEL%
+    goto :error
+)
 
 echo.
 echo [성공] 모든 작업이 완료되었습니다!
@@ -115,6 +130,15 @@ goto :end
 :error
 echo.
 echo [오류] 작업 중 문제가 발생했습니다.
+echo 다음 단계를 확인해보세요:
+echo 1. GitHub 사용자명과 개인 액세스 토큰이 올바른지 확인
+echo 2. 인터넷 연결 상태 확인
+echo 3. 저장소 URL이 올바른지 확인 (https://github.com/Mrgaga0/ovis-project)
+echo.
+echo 직접 명령어 실행해보기:
+echo git remote -v
+echo git status
+echo.
 exit /b 1
 
 :end
