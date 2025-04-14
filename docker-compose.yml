@@ -8,18 +8,19 @@ services:
     container_name: ovis-app
     restart: unless-stopped
     ports:
-      - "528:528"
+      - "3002:3002"
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-      -  W:/ovis_save:/nas-mount
+      - ./ovis-api:/app
+      - W:/ovis_save:/nas-mount
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=sqlite:///data/ovis.db
       - LOG_LEVEL=info
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:528/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
       interval: 30s
       timeout: 10s
       retries: 3

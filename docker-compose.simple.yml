@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  ovis-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: ovis-api-simple
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./ovis-api:/app
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=debug
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    networks:
+      - ovis-network
+
+networks:
+  ovis-network:
+    driver: bridge 

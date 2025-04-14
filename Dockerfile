@@ -40,7 +40,7 @@ COPY config/ /app/config/
 RUN mkdir -p /app/data /app/logs /nas-mount /nas-mount/models /nas-mount/data /nas-mount/logs
 
 # ?�경 변???�정
-ENV PORT=528 \
+ENV PORT=3002 \
     HOST=0.0.0.0 \
     OVIS_CONFIG=/app/config/local.json \
     PYTHONUNBUFFERED=1 \
@@ -54,7 +54,7 @@ VOLUME /app/logs
 VOLUME /nas-mount
 
 # ?�트 ?�출
-EXPOSE 528
+EXPOSE 3002
 
-# ?�버 ?�행
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "528", "--workers", "4"] 
+# ?버 ?행
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3002", "--workers", "4"] 

@@ -1,0 +1,30 @@
+# 단순화된 FastAPI 이미지
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# 기본 패키지 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 필요한 디렉토리 생성
+RUN mkdir -p /app/data /app/logs
+
+# requirements.txt 복사 및 설치
+COPY ovis-api/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir pydantic-settings \
+    && rm -rf ~/.cache/pip
+
+# 환경 변수 설정
+ENV PYTHONUNBUFFERED=1 \
+    PORT=3002 \
+    HOST=0.0.0.0
+
+# 포트 노출
+EXPOSE 3002
+
+# FastAPI 서버 실행 (자동 리로드 활성화)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3002", "--reload"] 

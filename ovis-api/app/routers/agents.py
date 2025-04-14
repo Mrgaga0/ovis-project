@@ -393,4 +393,70 @@ async def quick_setup_alpha():
     
     # 저장
     agents_db[agent_id] = new_agent
-    return new_agent 
+    return new_agent
+
+# 추가: Alpha Agent 전용 엔드포인트
+@router.get("/alpha", summary="알파 에이전트 정보", description="알파 에이전트에 대한 기본 정보 반환")
+async def get_alpha_agent_info():
+    """알파 에이전트 정보 조회"""
+    return {
+        "id": "alpha-default",
+        "name": "Alpha Agent",
+        "version": "0.19",
+        "status": "active",
+        "description": "기본 알파 에이전트",
+        "capabilities": [
+            "news_collection",
+            "topic_analysis",
+            "content_generation",
+            "youtube_script_creation"
+        ]
+    }
+
+@router.get("/alpha/status", summary="알파 에이전트 상태", description="알파 에이전트의 현재 상태 정보 반환")
+async def get_alpha_agent_status():
+    """알파 에이전트 상태 정보 조회"""
+    return {
+        "id": "alpha-default",
+        "status": "running",
+        "memory_usage": "512MB",
+        "cpu_usage": "15%",
+        "active_tasks": 0,
+        "last_activity": "2025-04-14T16:00:00Z"
+    }
+
+@router.post("/alpha/setup", summary="알파 에이전트 설정", description="알파 에이전트의 빠른 설정 수행")
+async def setup_alpha_agent():
+    """알파 에이전트 빠른 설정"""
+    # 데이터베이스에 기본 에이전트 추가
+    agent_id = "alpha-default"
+    
+    # 이미 존재하는 경우 교체
+    if agent_id in agents_db:
+        del agents_db[agent_id]
+    
+    # 새 기본 알파 에이전트 생성
+    alpha_agent = {
+        "id": agent_id,
+        "name": "Alpha Agent",
+        "type": "alpha",
+        "description": "기본 알파 에이전트",
+        "status": "active",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+        "config": {
+            "model": "gemini-2.0",
+            "temperature": 0.7,
+            "max_tokens": 1024
+        }
+    }
+    
+    # 저장
+    agents_db[agent_id] = alpha_agent
+    
+    return {
+        "success": True,
+        "message": "Alpha Agent가 성공적으로 설정되었습니다.",
+        "agent_id": agent_id,
+        "config": alpha_agent["config"]
+    } 

@@ -19,6 +19,9 @@ from .models.agent import AgentStatus
 # 환경 설정 로드
 settings = get_settings()
 
+# API 경로 확인 및 표준화
+API_PREFIX = "/api/v1"  # 명시적으로 설정
+
 # FastAPI 앱 초기화
 app = FastAPI(
     title="OVIS API",
@@ -29,17 +32,16 @@ app = FastAPI(
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.api.cors_origins,
+    allow_origins=["*"],  # 모든 오리진 허용
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 라우터 등록 - 설정 파일의 prefix 사용
-prefix = settings.api.prefix
-app.include_router(agents.router, prefix=f"{prefix}/agents", tags=["agents"])
-app.include_router(nas.router, prefix=f"{prefix}/nas", tags=["nas"])
-app.include_router(logs.router, prefix=f"{prefix}/logs", tags=["logs"])
+# 라우터 등록 - 명시적 경로 사용
+app.include_router(agents.router, prefix=f"{API_PREFIX}/agents", tags=["agents"])
+app.include_router(nas.router, prefix=f"{API_PREFIX}/nas", tags=["nas"])
+app.include_router(logs.router, prefix=f"{API_PREFIX}/logs", tags=["logs"])
 
 # NAS 관리자 초기화
 nas_manager = NASManager(settings.nas.path, settings.nas.directory_structure)
@@ -70,28 +72,34 @@ async def shutdown_event():
 
 @app.get("/")
 async def root():
-    """API 루트 경로"""
+    """API 루트 경로 - 명확한 응답 제공"""
     return {
-        "message": "OVIS API 서버에 연결되었습니다.",
+        "message": "OVIS API 서버가 실행 중입니다",
         "version": settings.app.version,
-        "docs_url": "/docs"
+        "docs_url": "/docs",
+        "api_prefix": API_PREFIX
     }
 
-@app.get(f"{prefix}")
+@app.get("/health")
+async def health_check():
+    """헬스 체크 엔드포인트 - 컨테이너 상태 확인용"""
+    return {"status": "ok"}
+
+@app.get(f"{API_PREFIX}")
 async def api_root():
     """API 기본 경로"""
     return {
-        "message": "OVIS API가 실행 중입니다.",
+        "message": "OVIS API가 실행 중입니다",
         "endpoints": [
-            f"{prefix}/agents",
-            f"{prefix}/nas",
-            f"{prefix}/logs",
-            f"{prefix}/status",
-            f"{prefix}/system/info"
+            f"{API_PREFIX}/agents",
+            f"{API_PREFIX}/nas",
+            f"{API_PREFIX}/logs",
+            f"{API_PREFIX}/status",
+            f"{API_PREFIX}/system/info"
         ]
     }
 
-@app.get(f"{prefix}/status")
+@app.get(f"{API_PREFIX}/status")
 async def get_status():
     """시스템 상태 정보 반환"""
     return {
@@ -102,7 +110,7 @@ async def get_status():
         "available_agents": settings.agents.available
     }
 
-@app.get(f"{prefix}/system/info")
+@app.get(f"{API_PREFIX}/system/info")
 async def get_system_info():
     """시스템 정보 반환"""
     return {
@@ -122,10 +130,18 @@ async def get_system_info():
         }
     }
 
-@app.get("/health")
-async def health_check():
-    """헬스 체크 엔드포인트"""
-    return {"status": "ok"}
+# 기본 Alpha 에이전트 테스트 엔드포인트 추가
+@app.get(f"{API_PREFIX}/agents/alpha")
+async def alpha_agent_info():
+    """Alpha 에이전트 정보 반환 - 테스트용"""
+    return {
+        "id": "alpha-default",
+        "name": "Alpha Agent",
+        "type": "alpha",
+        "status": "active",
+        "description": "기본 알파 에이전트",
+        "version": "0.19"
+    }
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host=settings.api.host, port=settings.api.port, reload=True) 
+    uvicorn.run("app.main:app", host="0.0.0.0", port=3002, reload=True) 
