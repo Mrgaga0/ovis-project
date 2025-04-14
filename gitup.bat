@@ -51,12 +51,22 @@ echo [3/4] 버전 태그 생성...
 git tag -a ovis-%NEW_VERSION% -m "Version ovis-%NEW_VERSION%"
 
 echo [4/4] GitHub에 푸시...
+:: master에서 main으로 변경하고 푸시
+echo 클로드 연동을 위해 main 브랜치로 변경합니다...
+
 :: 현재 브랜치 확인
 for /f "tokens=*" %%a in ('git branch --show-current') do set CURRENT_BRANCH=%%a
 echo 현재 브랜치: %CURRENT_BRANCH%
 
-:: 현재 브랜치로 푸시
-git push origin %CURRENT_BRANCH%
+:: main 브랜치 생성 및 전환 (없는 경우)
+git checkout -b main 2>nul
+if %ERRORLEVEL% neq 0 (
+    :: 이미 존재하면 전환만
+    git checkout main
+)
+
+:: main 브랜치로 푸시
+git push -u origin main
 git push origin ovis-%NEW_VERSION%
 
 echo.
