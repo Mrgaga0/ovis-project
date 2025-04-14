@@ -1,0 +1,35 @@
+{
+  "app": {
+    "environment": "development",
+    "log_level": "debug"
+  },
+  "nas": {
+    "path": "/path/to/your/nas/mount",
+    "cache_size": "2GB"
+  },
+  "api": {
+    "host": "localhost",
+    "port": 8000
+  },
+  "ui": {
+    "port": 3000,
+    "dev_server": true
+  },
+  "logging": {
+    "file": {
+      "path": "./logs/ovis.log"
+    },
+    "console": {
+      "level": "debug"
+    }
+  },
+  "security": {
+    "encryption_key": "your-secure-key-here"
+  },
+  "system": {
+    "resource_limits": {
+      "memory": "8GB",
+      "cpu_percent": 90
+    }
+  }
+} 

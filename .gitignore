@@ -1,0 +1,87 @@
+# 운영 체제 파일
+.DS_Store
+Thumbs.db
+
+# 노드 모듈
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+.venv/
+.env
+
+# Electron
+.electron-builder.yml
+out/
+app/dist
+
+# 개발 환경
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 로컬 설정
+config/local.json
+.env.local
+
+# 로그
+logs/
+*.log
+
+# 테스트
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+.tox/
+
+# Docker
+.docker/
+.dockerignore
+
+# 빌드 결과물
+dist/
+build/
+*.exe
+*.dmg
+*.AppImage
+
+# 모델 파일 (대용량 파일은 Git에 포함하지 않음)
+/nas-mount/
+/models/
+*.onnx
+*.pt
+*.h5
+*.pkl
+*.bin
+*.params
+*.pth
+
+# 기타
+.cache/
+temp/
+.tmp/ 
