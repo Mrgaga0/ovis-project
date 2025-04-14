@@ -51,7 +51,12 @@ echo [3/4] 버전 태그 생성...
 git tag -a ovis-%NEW_VERSION% -m "Version ovis-%NEW_VERSION%"
 
 echo [4/4] GitHub에 푸시...
-git push origin main
+:: 현재 브랜치 확인
+for /f "tokens=*" %%a in ('git branch --show-current') do set CURRENT_BRANCH=%%a
+echo 현재 브랜치: %CURRENT_BRANCH%
+
+:: 현재 브랜치로 푸시
+git push origin %CURRENT_BRANCH%
 git push origin ovis-%NEW_VERSION%
 
 echo.
