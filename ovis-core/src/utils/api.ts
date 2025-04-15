@@ -15,30 +15,15 @@ export const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_URL;
   }
   
-  // Docker 환경 감지 - NGINX 사용시
-  if (window.location.hostname === 'localhost' && window.location.port === '8080') {
-    // Nginx가 프록시하는 경우 상대 경로 사용
-    return '/api';
-  }
-  
-  // NODE_ENV가 production인 경우 상대 경로 사용
-  if (process.env.NODE_ENV === 'production') {
-    // Docker 환경에서는 상대 경로를 사용 (Nginx가 프록시)
-    return '/api';
-  }
-  
   // 로컬 스토리지에서 저장된 URL 가져오기 또는 기본값 사용
   const savedUrl = localStorage.getItem('apiUrl');
   if (savedUrl) {
     return savedUrl;
   }
   
-  // 기본값: localhost:8000 (변경된 백엔드 포트)
-  return 'http://localhost:8000/api';
+  // 기본값: localhost:3002/api/v1
+  return 'http://localhost:3002/api/v1';
 };
-
-// API 기본 경로 (백엔드 API 버전)
-const API_PREFIX = '/api/v1';
 
 // API 클라이언트 설정
 export const apiClient = axios.create({

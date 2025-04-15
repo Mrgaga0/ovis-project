@@ -1,134 +1,161 @@
-# 오비스 프로젝트 (OVIS Project) v0.19
+# OVIS (Open Visual Intelligence System)
 
-오비스는 AI 기반 에이전트를 통해 뉴스 수집, 분석 및 콘텐츠 생성을 자동화하는 시스템입니다.
-
-## 버전 정보
-
-**현재 버전: v0.19**
-- 알파 에이전트 핵심 기능 구현
-- Docker 환경 최적화
-- NAS 연결 지원
-- Gemini 2.0 API 통합
-- CLI 기반 워크플로우 관리자 추가
-
-## 주요 기능
-
-- 다양한 소스에서 뉴스 자동 수집
-- AI 기반 주제 분석 및 클러스터링
-- 다양한 형식의 콘텐츠 생성 (기사, MZ 콘텐츠, 유튜브 스크립트)
-- 사용자 친화적인 대시보드 및 편집 인터페이스
-- 통합 워크플로우 관리자로 전체 프로세스 실행 및 관리
+OVIS는 오픈 비주얼 인텔리전스 시스템으로, 다양한 AI 에이전트를 활용하여 시각적인 작업을 수행할 수 있는 플랫폼입니다.
 
 ## 시스템 요구사항
 
-- Node.js 16.x 이상
+### 백엔드
 - Python 3.9 이상
-- Docker (선택 사항)
+- pip 패키지 관리자
+- 필요한 Python 라이브러리 (requirements.txt 참조)
 
-## 워크플로우 관리자 사용하기
+### 프론트엔드
+- Node.js 16 이상
+- npm 패키지 관리자
+- React 애플리케이션 실행에 필요한 패키지
 
-### Windows에서 실행
+## 설치 및 실행 방법
 
-```
-# 프로젝트 루트 디렉토리에서 다음 파일 실행
-run-ovis.bat
-```
+### Windows에서 실행하기
 
-### Linux/macOS에서 실행
+1. 레포지토리 복제:
+   ```
+   git clone https://github.com/yourusername/ovis.git
+   cd ovis
+   ```
 
-```
-# 프로젝트 루트 디렉토리에서 다음 명령 실행
-chmod +x run-ovis.sh
-./run-ovis.sh
-```
+2. 간편 실행 (통합 스크립트 사용):
+   ```
+   run-ovis.bat
+   ```
+   이 스크립트는 자동으로 백엔드와 프론트엔드 서버를 시작합니다.
 
-워크플로우 관리자에 대한 자세한 내용은 [워크플로우 가이드](docs/workflow-guide.md)를 참조하세요.
+3. 개별 실행:
+   - 백엔드 서버 실행:
+     ```
+     run-backend.bat
+     ```
+   - 프론트엔드 서버 실행:
+     ```
+     run-frontend.bat
+     ```
 
-## Docker로 실행하기
+### Linux/macOS에서 실행하기
 
-### 사전 준비
+1. 레포지토리 복제:
+   ```
+   git clone https://github.com/yourusername/ovis.git
+   cd ovis
+   ```
 
-Docker와 Docker Compose가 설치되어 있어야 합니다.
+2. 간편 실행 (통합 스크립트 사용):
+   ```
+   chmod +x run-ovis.sh
+   ./run-ovis.sh
+   ```
 
-### 환경 변수 설정
+3. 개별 실행:
+   - 실행 권한 부여:
+     ```
+     chmod +x run-backend.sh run-frontend.sh
+     ```
+   - 백엔드 서버 실행:
+     ```
+     ./run-backend.sh
+     ```
+   - 프론트엔드 서버 실행:
+     ```
+     ./run-frontend.sh
+     ```
 
-프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 다음 내용을 추가합니다:
+## 수동 설정 및 실행
 
-```
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+### 백엔드 서버 (FastAPI)
 
-### 간편 실행 (PowerShell)
+1. 가상환경 생성 및 활성화 (선택사항):
+   ```
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # Linux/macOS
+   source venv/bin/activate
+   ```
 
-```powershell
-# 프로젝트 디렉토리로 이동
-cd ovis-project
+2. 필요한 패키지 설치:
+   ```
+   pip install -r ovis-api/requirements.txt
+   ```
 
-# 자동 설정 및 실행 스크립트 실행
-.\scripts\docker-start.ps1
-```
+3. 백엔드 서버 실행:
+   ```
+   cd ovis-api
+   python -m uvicorn app.main:app --host 0.0.0.0 --port 3002 --reload
+   ```
 
-### 수동 실행
-
-1. 프로젝트 루트 디렉토리에서 다음 명령을 실행합니다:
-
-```bash
-docker-compose up -d
-```
-
-2. 브라우저에서 `http://localhost:8080`로 접속합니다.
-
-### 컨테이너 상태 확인
-
-```bash
-docker-compose ps
-```
-
-### 로그 확인
-
-```bash
-docker-compose logs -f
-```
-
-### 컨테이너 중지
-
-```bash
-docker-compose down
-```
-
-## 로컬에서 직접 실행하기
-
-### 백엔드 설치 및 실행
-
-1. 필요한 패키지 설치:
-```bash
-cd ovis-api
-pip install -r requirements.txt
-```
-
-2. 서버 실행:
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 528 --reload
-```
-
-### 프론트엔드 설치 및 실행
+### 프론트엔드 서버 (React)
 
 1. 필요한 패키지 설치:
-```bash
-cd ovis-core
-npm install
+   ```
+   cd ovis-core
+   npm install --legacy-peer-deps
+   ```
+
+2. 프론트엔드 개발 서버 실행:
+   ```
+   npm start
+   ```
+
+## 접속 방법
+
+- 프론트엔드 웹 인터페이스: http://localhost:3000
+- 백엔드 API: http://localhost:3002/api/v1
+- API 문서: http://localhost:3002/docs
+
+## 환경 변수 설정
+
+.env 파일에 다음 환경 변수를 설정할 수 있습니다:
+
+```
+GEMINI_API_KEY=your-api-key  # Google Gemini API 키
+ENVIRONMENT=development       # 개발 환경 설정
+DATABASE_URL=sqlite:///data/ovis.db  # 데이터베이스 URL
+LOG_LEVEL=debug              # 로깅 레벨
+PORT=3002                    # 백엔드 서버 포트
+HOST=0.0.0.0                 # 백엔드 서버 호스트
+API_PREFIX=/api/v1           # API 경로 프리픽스
+CORS_ORIGINS=*               # CORS 허용 오리진
 ```
 
-2. 개발 서버 실행:
-```bash
-npm run dev
+## 프로젝트 구조
+
 ```
-
-3. 브라우저에서 `http://localhost:3000`으로 접속
-
-## API 문서
-
-API 문서는 서버 실행 후 `http://localhost:528/docs`에서 확인할 수 있습니다.
+ovis-project/
+├── ovis-api/            # 백엔드 API 서버 (FastAPI)
+│   ├── app/
+│   │   ├── routers/     # API 엔드포인트
+│   │   ├── models/      # 데이터 모델
+│   │   ├── core/        # 핵심 기능
+│   │   └── main.py      # 메인 애플리케이션
+│   └── requirements.txt # 백엔드 의존성
+├── ovis-core/           # 프론트엔드 (React)
+│   ├── public/          # 정적 파일
+│   ├── src/             # 소스 코드
+│   │   ├── components/  # React 컴포넌트
+│   │   ├── pages/       # 페이지 컴포넌트
+│   │   ├── utils/       # 유틸리티 함수
+│   │   └── App.tsx      # 메인 앱 컴포넌트
+│   └── package.json     # 프론트엔드 의존성
+├── data/                # 데이터 저장소
+├── logs/                # 로그 파일
+├── config/              # 설정 파일
+├── ovis_save/           # NAS 마운트 지점
+├── .env                 # 환경 변수
+├── run-ovis.bat         # Windows 통합 실행 스크립트
+├── run-backend.bat      # Windows 백엔드 실행 스크립트
+├── run-frontend.bat     # Windows 프론트엔드 실행 스크립트
+├── run-ovis.sh          # Linux/macOS 통합 실행 스크립트
+└── README.md            # 이 파일
+```
 
 ## 주요 기능
 
