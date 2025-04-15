@@ -8,17 +8,21 @@ services:
     container_name: ovis-app
     restart: unless-stopped
     ports:
-      - "3002:3002"
+      - "8000:3002"
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-      - ./ovis-api:/app
+      - ./config:/app/config
       - W:/ovis_save:/nas-mount
     environment:
       - ENVIRONMENT=development
       - DATABASE_URL=sqlite:///data/ovis.db
       - LOG_LEVEL=info
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PORT=3002
+      - HOST=0.0.0.0
+      - API_PREFIX=api/v1
+      - CORS_ORIGINS=http://localhost:8080,http://localhost:8001,http://frontend:3000,http://ovis-frontend:3000,*
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
       interval: 30s
@@ -36,13 +40,15 @@ services:
     container_name: ovis-frontend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "8001:3000"
     depends_on:
       - ovis
+    environment:
+      - REACT_APP_API_URL=/api
+      - NODE_ENV=development
+      - WDS_SOCKET_PORT=0
     networks:
       - ovis-network
-    environment:
-      - REACT_APP_API_URL=http://ovis-app:3002
 
   # Nginx 프록시 설정 - 프론트와 백엔드 통합
   nginx:
@@ -56,6 +62,12 @@ services:
     depends_on:
       - ovis
       - frontend
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     networks:
       - ovis-network
 

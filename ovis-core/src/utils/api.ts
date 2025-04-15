@@ -10,16 +10,19 @@ declare global {
 
 // API 기본 URL 설정 (환경에 따라 다름)
 export const getApiBaseUrl = () => {
-  // 개발 환경에서는 localhost:3002를 사용
-  // 프로덕션 환경(Docker)에서는 상대 경로 사용
-  
   // 환경 변수가 설정되어 있으면 그것을 사용
-  if (typeof window !== 'undefined' && window.process && window.process.env && window.process.env.REACT_APP_API_URL) {
-    return window.process.env.REACT_APP_API_URL;
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Docker 환경 감지 - NGINX 사용시
+  if (window.location.hostname === 'localhost' && window.location.port === '8080') {
+    // Nginx가 프록시하는 경우 상대 경로 사용
+    return '/api';
   }
   
   // NODE_ENV가 production인 경우 상대 경로 사용
-  if (typeof window !== 'undefined' && window.process && window.process.env && window.process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
     // Docker 환경에서는 상대 경로를 사용 (Nginx가 프록시)
     return '/api';
   }
@@ -30,14 +33,17 @@ export const getApiBaseUrl = () => {
     return savedUrl;
   }
   
-  // 기본값: localhost:3002
-  return 'http://localhost:3002';
+  // 기본값: localhost:8000 (변경된 백엔드 포트)
+  return 'http://localhost:8000/api';
 };
+
+// API 기본 경로 (백엔드 API 버전)
+const API_PREFIX = '/api/v1';
 
 // API 클라이언트 설정
 export const apiClient = axios.create({
   baseURL: getApiBaseUrl(),
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -55,10 +61,12 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    console.log('API 요청 URL:', config.baseURL + config.url);
     return config;
   },
   (error: AxiosError) => {
     // 요청 에러 처리
+    console.error('API 요청 에러:', error.message);
     return Promise.reject(error);
   }
 );
@@ -82,7 +90,7 @@ apiClient.interceptors.response.use(
       }
     } else if (error.request) {
       // 요청이 전송되었으나 응답이 없는 경우
-      console.error('API 요청 에러: 응답 없음');
+      console.error('API 요청 에러: 응답 없음', error.request);
     } else {
       // 요청 설정 중 에러 발생
       console.error('API 설정 에러:', error.message);
@@ -105,68 +113,68 @@ export const api = {
   // 에이전트 관련 API
   agents: {
     getAll: async () => {
-      return await apiClient.get('/api/v1/agents');
+      return await apiClient.get('/agents');
     },
     
     getById: async (id: string) => {
-      return await apiClient.get(`/api/v1/agents/${id}`);
+      return await apiClient.get(`/agents/${id}`);
     },
     
     create: async (data: any) => {
-      return await apiClient.post('/api/v1/agents', data);
+      return await apiClient.post('/agents', data);
     },
     
     update: async (id: string, data: any) => {
-      return await apiClient.put(`/api/v1/agents/${id}`, data);
+      return await apiClient.put(`/agents/${id}`, data);
     },
     
     delete: async (id: string) => {
-      return await apiClient.delete(`/api/v1/agents/${id}`);
+      return await apiClient.delete(`/agents/${id}`);
     },
     
     start: async (id: string) => {
-      return await apiClient.post(`/api/v1/agents/${id}/start`);
+      return await apiClient.post(`/agents/${id}/start`);
     },
     
     stop: async (id: string) => {
-      return await apiClient.post(`/api/v1/agents/${id}/stop`);
+      return await apiClient.post(`/agents/${id}/stop`);
     },
     
     status: async (id: string) => {
-      return await apiClient.get(`/api/v1/agents/${id}/status`);
+      return await apiClient.get(`/agents/${id}/status`);
     },
     
     execute: async (id: string, task: any) => {
-      return await apiClient.post(`/api/v1/agents/${id}/execute`, task);
+      return await apiClient.post(`/agents/${id}/execute`, task);
     },
     
     quickSetupAlpha: async () => {
-      return await apiClient.post('/api/v1/agents/alpha/quick-setup');
+      return await apiClient.post('/agents/alpha/quick-setup');
     },
     
     getAlphaTemplates: async () => {
-      return await apiClient.get('/api/v1/agents/types/alpha/templates');
+      return await apiClient.get('/agents/types/alpha/templates');
     },
   },
   
   // NAS 관련 API
   nas: {
     getStatus: async () => {
-      return await apiClient.get('/api/v1/nas/status');
+      return await apiClient.get('/nas/status');
     },
     
     listFiles: async (path?: string) => {
-      return await apiClient.get('/api/v1/nas/files', { params: { path } });
+      return await apiClient.get('/nas/files', { params: { path } });
     },
     
     readFile: async (path: string) => {
-      return await apiClient.get('/api/v1/nas/file', { params: { path } });
+      return await apiClient.get('/nas/file', { params: { path } });
     },
     
     uploadFile: async (path: string, file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      return await apiClient.post('/api/v1/nas/file', formData, {
+      return await apiClient.post('/nas/file', formData, {
         params: { path },
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -175,45 +183,45 @@ export const api = {
     },
     
     deleteFile: async (path: string) => {
-      return await apiClient.delete('/api/v1/nas/file', { params: { path } });
+      return await apiClient.delete('/nas/file', { params: { path } });
     },
     
     createDirectory: async (path: string) => {
-      return await apiClient.post('/api/v1/nas/directory', null, { params: { path } });
+      return await apiClient.post('/nas/directory', null, { params: { path } });
     },
     
     listModels: async () => {
-      return await apiClient.get('/api/v1/nas/models');
+      return await apiClient.get('/nas/models');
     },
   },
   
   // 로그 관련 API
   logs: {
     getLogs: async (params?: any) => {
-      return await apiClient.get('/api/v1/logs', { params });
+      return await apiClient.get('/logs', { params });
     },
     
     getLogFiles: async () => {
-      return await apiClient.get('/api/v1/logs/files');
+      return await apiClient.get('/logs/files');
     },
     
     readLogFile: async (path: string) => {
-      return await apiClient.get('/api/v1/logs/file', { params: { path } });
+      return await apiClient.get('/logs/file', { params: { path } });
     },
     
     deleteLogFile: async (path: string) => {
-      return await apiClient.delete('/api/v1/logs/file', { params: { path } });
+      return await apiClient.delete('/logs/file', { params: { path } });
     },
   },
   
   // 시스템 관련 API
   system: {
     getStatus: async () => {
-      return await apiClient.get('/api/v1/status');
+      return await apiClient.get('/status');
     },
     
     getSystemInfo: async () => {
-      return await apiClient.get('/api/v1/system/info');
+      return await apiClient.get('/system/info');
     },
   },
 }; 

@@ -13,10 +13,18 @@ RUN npm install --legacy-peer-deps
 COPY ovis-core/ ./
 
 # 환경 변수 설정
-ENV REACT_APP_API_URL=http://ovis-app:3002
+ENV REACT_APP_API_URL=/api
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOST=0.0.0.0
+ENV WDS_SOCKET_PORT=0
 
-# 빌드 대신 개발 서버 실행
+# 개발 서버의 웹소켓 오류 방지를 위한 환경 변수 설정
+ENV DANGEROUSLY_DISABLE_HOST_CHECK=true
+ENV FAST_REFRESH=false
+
+# 개발 서버 실행을 위한 포트 노출
 EXPOSE 3000
 
 # 개발 서버 실행
